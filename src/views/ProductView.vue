@@ -1,34 +1,48 @@
 <template>
-    <div class="col-12 mb-4">
+    <div v-if="(typeof product.title) == 'undefined'">
+        <img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/6b449513765711.56277d303236b.gif" alt="">
+    </div>
+    <div
+        class="col-12 mb-4"
+        v-if="(typeof product.title) != 'undefined'"
+    >
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="products.html" class="text-decoration-none">Главная</a>
+                <li class="breadcrumb-item">
+                    <router-link :to="{name: 'products'}" class="text-decoration-none">
+                        Главная
+                    </router-link>
                 </li>
-                <li class="breadcrumb-item"><a href="products.html" class="text-decoration-none">Молочные
-                        продукты</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Творог рассыпчатый 9%</li>
+                <li class="breadcrumb-item">
+                    <a href="products.html" class="text-decoration-none">
+                        {{ product.category }}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
             </ol>
         </nav>
     </div>
-    <div class="col-md-6 mb-4">
+    <div class="col-md-6 mb-4"
+        v-if="(typeof product.title) != 'undefined'"
+    >
         <div class="card">
             <div class="ratio ratio-4x3">
-                <img src="products/photo-1.jpg" class="card-img-top object-fit-contain">
+                <img :src="product.images[0]" class="card-img-top object-fit-contain">
             </div>
         </div>
     </div>
-    <div class="col-md-6 mb-4">
-        <h1 class="mb-4">{{ $route.params.id }}</h1>
+    <div class="col-md-6 mb-4"
+        v-if="(typeof product.title) != 'undefined'"
+    >
+        <h1 class="mb-4">{{ product.title }}</h1>
         <div class="d-flex gap-2 align-items-center mb-4">
-            <div class="badge text-bg-success">Рейтинг: 3.9</div>
-            <div class="text-muted">12 отзывов</div>
+            <div class="badge text-bg-success">Рейтинг: <span>{{ product.rating }}</span></div>
+            <div class="text-muted"><span>{{ product.reviews.length }}</span> отзывов</div>
         </div>
         <div class="mb-4">
             <h5>Описание</h5>
             <p class="text-muted">
-                Творог рассыпчатый 9% - натуральный молочный продукт, богатый белком и кальцием.
-                Изготовлен из свежего коровьего молока высшего качества. Идеально подходит для
-                приготовления творожных запеканок, сырников и других блюд.
+                {{ product.description }}
             </p>
         </div>
         <div class="mb-4">
@@ -36,20 +50,12 @@
             <table class="table">
                 <tbody>
                     <tr>
-                        <td class="text-muted">Страна производства</td>
-                        <td>Казахстан</td>
+                        <td class="text-muted">Бренд</td>
+                        <td>{{ product.brand }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Вес упаковки</td>
-                        <td>300 г</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Жирность</td>
-                        <td>9%</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Срок годности</td>
-                        <td>7 дней</td>
+                        <td class="text-muted">Артикул</td>
+                        <td>{{ product.sku }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -58,9 +64,9 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <div class="fs-3 fw-bold mb-1">300 ₸</div>
+                        <div class="fs-3 fw-bold mb-1"><span>{{ product.price }}</span> ₸</div>
                         <div>
-                            <span class="badge text-bg-warning">100 ₸</span> <small>x3</small>
+                            <span class="badge text-bg-warning"><span>{{ priceCredit }}</span> ₸</span> <small>x3</small>
                         </div>
                     </div>
                     <div class="input-group" style="max-width: 150px;">
@@ -76,6 +82,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
     data: function () {
         return {
@@ -85,10 +92,15 @@ export default {
     mounted: function () {
         this.getProduct();
     },
+    computed: {
+        priceCredit: function () {
+            return Math.round(this.product.price / 3);
+        }
+    },
     methods: {
-        getProduct: function () {
-            // axios
-            // this.product = ljlasff
+        getProduct: async function () {
+            const result = await axios.get('https://dummyjson.com/products/' + this.$route.params.id);
+            this.product = result.data;
         }
     }
 };

@@ -25,7 +25,20 @@
                             <small> x3</small>
                         </div>
                     </div>
-                    <button class="btn btn-danger">В корзину</button>
+                    <button class="btn btn-danger"
+                        @click.prevent="addProductCart"
+                        v-if="!inCart"
+                    >В корзину</button>
+                    <div class="input-group" style="max-width: 100px;" v-else>
+                        <button class="btn btn-outline-secondary" type="button"
+                            @click.prevent="quantity--"
+                        >-</button>
+                        <input type="text" readonly
+                            class="form-control border-secondary px-0 pe-none text-center" v-model="quantity">
+                        <button class="btn btn-outline-secondary" type="button"
+                            @click.prevent="quantity++"
+                        >+</button>
+                    </div>
                 </div>
             </div>
         </router-link>
@@ -34,6 +47,7 @@
 
 <script>
 export default {
+    emits: ['addProductCart'],
     props: [
         'id',
         'title',
@@ -43,6 +57,18 @@ export default {
         'sku',
         'thumbnail'
     ],
+    data: function () {
+        return {
+            inCart: false,
+            quantity: 1
+        };
+    },
+    methods: {
+        addProductCart: function () {
+            this.inCart = true;
+            this.$emit('addProductCart', this.id, this.price, this.quantity);
+        }
+    },
     computed: {
         priceCredit: function () {
             return Math.round(this.price / 3);
