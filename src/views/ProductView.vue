@@ -70,12 +70,23 @@
                         </div>
                     </div>
                     <div class="input-group" style="max-width: 150px;">
-                        <button class="btn btn-outline-secondary" type="button">-</button>
-                        <input type="text" class="form-control text-center" value="1" readonly>
-                        <button class="btn btn-outline-secondary" type="button">+</button>
+                        <button
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            @click="decrementQuantity"
+                        >-</button>
+                        <input type="text" class="form-control text-center" v-model="quantity" readonly>
+                        <button
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            @click="incrementQuantity"
+                        >+</button>
                     </div>
                 </div>
-                <button class="btn btn-danger w-100">Добавить в корзину</button>
+                <button
+                    class="btn btn-danger w-100"
+                    @click="addCartProduct"
+                >Добавить в корзину</button>
             </div>
         </div>
     </div>
@@ -83,10 +94,13 @@
 
 <script>
 import axios from "axios";
+import { useCartStore } from "@/stores/cart";
 export default {
     data: function () {
         return {
-            product: {}
+            product: {},
+            quantity: 1,
+            cartStore: useCartStore()
         };
     },
     mounted: function () {
@@ -101,6 +115,19 @@ export default {
         getProduct: async function () {
             const result = await axios.get('https://dummyjson.com/products/' + this.$route.params.id);
             this.product = result.data;
+        },
+        addCartProduct: function () {
+            this.cartStore.addProduct(this.product.id, this.product.price, this.quantity);
+        },
+        decrementQuantity: function () {
+            if (this.quantity > 1) {
+                this.quantity--;   
+            }
+        },
+        incrementQuantity: function () {
+            if (this.quantity < 99) {
+                this.quantity++;   
+            }
         }
     }
 };

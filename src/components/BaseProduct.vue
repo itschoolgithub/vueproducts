@@ -27,16 +27,20 @@
                     </div>
                     <button class="btn btn-danger"
                         @click.prevent="addProductCart"
-                        v-if="!inCart"
+                        v-if="!quantity"
                     >В корзину</button>
                     <div class="input-group" style="max-width: 100px;" v-else>
-                        <button class="btn btn-outline-secondary" type="button"
-                            @click.prevent="quantity--"
+                        <button
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            @click.prevent="decrementQuantity"
                         >-</button>
                         <input type="text" readonly
                             class="form-control border-secondary px-0 pe-none text-center" v-model="quantity">
-                        <button class="btn btn-outline-secondary" type="button"
-                            @click.prevent="quantity++"
+                        <button
+                            class="btn btn-outline-secondary"
+                            type="button"
+                            @click.prevent="incrementQuantity"
                         >+</button>
                     </div>
                 </div>
@@ -46,8 +50,8 @@
 </template>
 
 <script>
+import { useCartStore } from '@/stores/cart';
 export default {
-    emits: ['addProductCart'],
     props: [
         'id',
         'title',
@@ -59,14 +63,33 @@ export default {
     ],
     data: function () {
         return {
-            inCart: false,
-            quantity: 1
+            quantity: 0,
+            cartStore: useCartStore()
         };
+    },
+    mounted: function () {
+        this.quantity = this.cartStore.getQuantity(this.id);
     },
     methods: {
         addProductCart: function () {
-            this.inCart = true;
-            this.$emit('addProductCart', this.id, this.price, this.quantity);
+            this.quantity = 1;
+            this.cartStore.addProduct(this.id, this.price, this.quantity);
+        },
+        decrementQuantity: function () {
+            if (this.quantity > 0) {
+                this.quantity--;
+            }
+            if (this.quantity == 0) {
+                this.cartStore.removeProduct(this.id);
+            } else {
+                this.cartStore.updateQuanitity(this.id, this.quantity);
+            }
+        },
+        incrementQuantity: function () {
+            if (this.quantity < 99) {
+                this.quantity++;
+            }
+            this.cartStore.updateQuanitity(this.id, this.quantity);
         }
     },
     computed: {

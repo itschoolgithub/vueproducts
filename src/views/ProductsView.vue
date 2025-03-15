@@ -17,7 +17,6 @@
     >
         <base-product
             v-bind="product"
-            @add-product-cart="onAddProductCart"
         ></base-product> 
     </div>
     
@@ -28,7 +27,6 @@ import axios from "axios";
 import BaseProduct from '@/components/BaseProduct.vue';
 
 export default {
-    emits: ['addCart'],
     data: function () {
         return {
             products: []
@@ -42,9 +40,6 @@ export default {
             const result = await axios.get('https://dummyjson.com/products');
             this.products = result.data.products;
         },
-        onAddProductCart: function (id, price, quantity) {
-            this.$emit('addCart', id, price, quantity);
-        }
     },
     components: {
         BaseProduct
